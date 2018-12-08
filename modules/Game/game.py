@@ -21,7 +21,7 @@ class Game:
         Positive value - favorable board for Player 1
         Negative value - favorable board for Player 2
         0 - Neutral for both players
-    curr_player: str
+    curr_player : str
         Stores the current player's turn as '1' or '2'
     winner : str
         Stores the winner

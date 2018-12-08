@@ -1,10 +1,18 @@
-from board import BoardGUI
-from game import Game
+from modules.Board.board import BoardGUI
+from modules.Game.game import Game
 
-import tkinter as tk
+from tkinter import Tk
 
-game_inst = Game(7, 6)
+# Create a game instance
+# The only dimensions that currently work at 7 x 6 | w x h
+game_instance = Game(7, 6)
 
-root = tk.Tk()
-board_gui = BoardGUI(root, game_inst)
+# Create a window and name it
+root = Tk()
+root.title('Connect 4')
+
+# Create the board on the window
+board_gui = BoardGUI(root, game_instance)
+
+# Keeps the window running
 root.mainloop()
