@@ -30,6 +30,10 @@ class BoardGUI:
         Tells us whether or not the game has started
     start_btn : tk.Button
         Reference to the button that starts the game
+    back_btn : tk.Button
+        Reference to the button that goes back one turn
+    difficulty : tk.StringVar
+        Determines the difficulty the bot should play at
     """
 
     def __init__(self, root, game_inst):
@@ -83,6 +87,16 @@ class BoardGUI:
                               pady=5)
         reset_btn.pack(side=tk.TOP, fill='x')
 
+        # Create the back button and position it on the right side
+        self.back_btn = tk.Button(frame, text='Back',
+                                  command=self.back_btn_clicked, pady=5,
+                                  state=tk.DISABLED)
+        self.back_btn.pack(side=tk.TOP, fill='x')
+
+        # Create the quit button and position it on the right side
+        quit_btn = tk.Button(frame, text='Quit', command=frame.quit)
+        quit_btn.pack(side=tk.TOP, fill='x')
+
         # Add an empty label to create a gap
         tk.Label(frame).pack()
 
@@ -113,6 +127,22 @@ class BoardGUI:
         player_2_combo.set('Human')
         player_2_combo.pack()
 
+        # Add an empty label to create a gap
+        tk.Label(frame).pack()
+
+        # Create the label for the difficulty
+        difficulty_label = tk.Label(frame, text='Difficulty')
+        difficulty_label.pack(side=tk.TOP)
+
+        # Create combobox for difficulty
+        self.difficulty = tk.StringVar()
+        difficulty_combo = ttk.Combobox(frame,
+                                        textvariable=self.difficulty,
+                                        values=('Easy', 'Medium', 'Hard'),
+                                        state='readonly')
+        difficulty_combo.set('Easy')
+        difficulty_combo.pack()
+
     def draw_board(self):
         """Draws the board onto the canvas"""
 
@@ -136,6 +166,9 @@ class BoardGUI:
 
         # Disable the start button once we've started
         self.start_btn.config(state=tk.DISABLED)
+
+        # Enable the back button once we've started
+        self.back_btn.config(state=tk.DISABLED)
 
         # Call update_board once to start the continuous calls
         self.update_board()
@@ -167,6 +200,18 @@ class BoardGUI:
             self.root.after_cancel(self.callback_id)
             self.callback_id = -1
 
+    def back_btn_clicked(self):
+        """Removes the previous move"""
+
+        # Call on remove function to remove from internal state
+        position = self.game_inst.remove_previous_move()
+
+        # Removed successfully from internal state
+        if position[0] >= 0 and position[1] >= 0:
+
+            # Remove from the GUI
+            self.add_token(position[0], position[1], '0')
+
     def add_token(self, row, col, player):
         """Draws a token in a specific position in the player's color
 
@@ -178,6 +223,7 @@ class BoardGUI:
             The col of the token
         player : str
             The player we're drawing the token for
+            '0' to draw a white circle (removes the token)
         """
 
         # Compute the x and y values using row and col
@@ -185,9 +231,11 @@ class BoardGUI:
         y = 10 + row * 100
 
         # Determine the color we should draw the token in
-        color = 'red'
-        if player == '2':
-            color = 'yellow'
+        color = 'yellow'
+        if player == '0':
+            color = 'white'
+        elif player == '1':
+            color = 'red'
 
         # Draw the token in the specified location with the specified color
         self.canvas.create_oval(x, y, x + 100, y + 100,
@@ -232,6 +280,15 @@ class BoardGUI:
             self.update_labels()
             return
 
+        # Update difficulty if necessary
+        difficulty_str = self.difficulty.get()
+        if difficulty_str == 'Easy':
+            self.game_inst.moves_ahead = 1
+        elif difficulty_str == 'Medium':
+            self.game_inst.moves_ahead = 2
+        elif difficulty_str == 'Hard':
+            self.game_inst.moves_ahead = 4
+
         # If the current player is a human
         if self.player_status[self.game_inst.curr_player].get() == 'Human':
             if self.game_inst.allows_move(self.selected_move):
@@ -268,3 +325,6 @@ class BoardGUI:
         # Stop the callback
         if self.callback_id == -1:
             self.root.after_cancel(self.callback_id)
+
+        # Disable the back button
+        self.back_btn.config(state=tk.DISABLED)

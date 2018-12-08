@@ -25,6 +25,10 @@ class Game:
         Stores the current player's turn as '1' or '2'
     winner : str
         Stores the winner
+    moves_ahead : int
+        The number of moves to look ahead
+    moves_made : list of int
+        A list that stores the moves that were made in, FIFO structure
     """
 
     def __init__(self, width=7, height=6):
@@ -53,6 +57,10 @@ class Game:
         self.board_score = 0
         self.curr_player = '1'
         self.winner = '-1'
+        self.moves_ahead = 1
+
+        # Initialize an empty list for the moves made
+        self.moves_made = []
 
     def __repr__(self):
         """This function creates a formatted string representation of the board
@@ -124,9 +132,9 @@ class Game:
             order.append(i)
             order.append(self.width - 1 - i)
 
-        # Append the middle index if the width is an odd number
+        # Prepend the middle index if the width is an odd number
         if self.width % 2 == 1:
-            order.append(int(self.width / 2))
+            order = [int(self.width / 2)] + order
 
         return order
 
@@ -142,6 +150,9 @@ class Game:
         self.curr_player = '1'
         self.winner = '-1'
 
+        # Reset the stack of moves
+        self.moves_made = []
+
     def add_token(self, col, player, pruning=False):
         """This function adds a token in the specified column
 
@@ -154,6 +165,7 @@ class Game:
             Which player we're currently on
         pruning : bool
             Whether or not we are pruning for the best choice
+            Default value is False
 
         Returns
         -------
@@ -168,8 +180,9 @@ class Game:
             if self.board[row][col] == ' ':
                 self.board[row][col] = player
 
-                # Swap players when we're not pruning
+                # Swap players when we're not pruning and add to the stack
                 if not pruning:
+                    self.moves_made.insert(0, col)
                     if self.curr_player == '1':
                         self.curr_player = '2'
                     else:
@@ -201,17 +214,55 @@ class Game:
         ----------
         col : int
             The column to remove the token from
+
+        Returns
+        -------
+        int
+            The row that the token was removed from
         """
 
         # Makes sure col[umn] is in bounds
         if not (col in range(self.width)):
-            return
+            return -1
 
         # Iterates from top to bottom and removes the first non-empty spot
         for row in range(self.height):
             if self.board[row][col] != ' ':
                 self.board[row][col] = ' '
-                return
+                return row
+        
+        return -1
+
+    def remove_previous_move(self):
+        """Removes the last move made from the board
+        
+        Returns
+        -------
+        tuple of int and int
+            The row and column that the token was removed from
+        """
+
+        # If no moves have been made, return
+        if len(self.moves_made) <= 0:
+            return -1, -1
+
+        # Pop the first item from the stack
+        column = self.moves_made[0]
+        self.moves_made = self.moves_made[1:]
+
+        # Remove the token from that column and set player to previous
+        row = self.remove_token(column)
+
+        # Check to make sure something was removed
+        if row < 0:
+            return -1, -1
+
+        if self.curr_player == '1':
+            self.curr_player = '2'
+        else:
+            self.curr_player = '1'
+
+        return row, column
 
     def is_game_over(self):
         """Determines if the game is over
@@ -358,12 +409,14 @@ class Game:
         """
 
         # Initial call to our recursive alpha_beta_pruning method
-        score, col = self.alpha_beta_pruning(self.order[0], 4, -999999, 999999,
-                                             self.board_score, player)
+        score, col = self.alpha_beta_pruning(self.order[0], self.moves_ahead,
+                                             -999999, 999999, self.board_score,
+                                             player)
 
         # Go through all of the columns in the order saved in self.order
         for i in range(1, len(self.order)):
-            res, temp_col = self.alpha_beta_pruning(self.order[i], 4,
+            res, temp_col = self.alpha_beta_pruning(self.order[i],
+                                                    self.moves_ahead,
                                                     -999999, 999999,
                                                     self.board_score, player)
 
