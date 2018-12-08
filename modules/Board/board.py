@@ -168,7 +168,7 @@ class BoardGUI:
         self.start_btn.config(state=tk.DISABLED)
 
         # Enable the back button once we've started
-        self.back_btn.config(state=tk.DISABLED)
+        self.back_btn.config(state=tk.NORMAL)
 
         # Call update_board once to start the continuous calls
         self.update_board()
