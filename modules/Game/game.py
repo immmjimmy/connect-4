@@ -230,12 +230,12 @@ class Game:
             if self.board[row][col] != ' ':
                 self.board[row][col] = ' '
                 return row
-        
+
         return -1
 
     def remove_previous_move(self):
         """Removes the last move made from the board
-        
+
         Returns
         -------
         tuple of int and int

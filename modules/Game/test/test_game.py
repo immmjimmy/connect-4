@@ -6,6 +6,8 @@ import Game.game as game  # noqa: E402
 
 # Create a game instance that we will use for test
 game = game.Game()
+# Set difficulty to hard
+game.moves_ahead = 4
 
 
 def test_initialization():
@@ -20,7 +22,7 @@ def test_initialization():
     for i in range(game.height):
         for j in range(game.width):
             assert game.board[i][j] == ' '
-    
+
     # Test to make sure we have the right order
     # This also tests the function generate_order
     expected_order = [3, 2, 4, 1, 5, 0, 6]
@@ -92,7 +94,7 @@ def test_allows_move():
 
 def test_is_game_over():
     """Tests the is_game_over function
-    
+
     Because is_game_over calls on has_won and check_winner to determine
     whether or not the game is over, it also tests those functions implictly.
     """
@@ -147,7 +149,7 @@ def test_determine_ai_move():
     game.reset_board()
     for i in range(1, 4):
         game.add_token(i, '1')
-    
+
     # Add a token to make sure there is only one possibility of winning/losing
     game.add_token(0, '2')
 

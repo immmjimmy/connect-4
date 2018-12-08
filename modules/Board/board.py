@@ -138,7 +138,7 @@ class BoardGUI:
         self.difficulty = tk.StringVar()
         difficulty_combo = ttk.Combobox(frame,
                                         textvariable=self.difficulty,
-                                        values=('Easy', 'Medium', 'Hard'),
+                                        values=('Easy', 'Hard'),
                                         state='readonly')
         difficulty_combo.set('Easy')
         difficulty_combo.pack()
@@ -283,9 +283,7 @@ class BoardGUI:
         # Update difficulty if necessary
         difficulty_str = self.difficulty.get()
         if difficulty_str == 'Easy':
-            self.game_inst.moves_ahead = 1
-        elif difficulty_str == 'Medium':
-            self.game_inst.moves_ahead = 2
+            self.game_inst.moves_ahead = 3
         elif difficulty_str == 'Hard':
             self.game_inst.moves_ahead = 4
 
