@@ -26,3 +26,4 @@ obj/**
 tmp/**
 .python-version
 .vs/
+.ipynb-checkpoints/*
