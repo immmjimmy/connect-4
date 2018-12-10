@@ -1,6 +1,7 @@
 # Connect 4
 
 This project is an implementation of Connect 4. It features a GUI that allows users to play against their friends or against the built-in bot. You can even pit the bot against itself (this will result in the same outcome every game).
+![Connect-4-Screenshot](./connect-4-screenshot.png)
 
 ## Features
 - GUI was built using Tkinter
